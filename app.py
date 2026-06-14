@@ -65,14 +65,32 @@ with tab_pr:
     st.markdown("### The Global Benchmark: CAGS vs. OECD")
     st.markdown("By combining our data, the Children's Academy network vividly demonstrates that our educational standards and student well-being dramatically outperform international baseline averages.")
     
+    st.divider()
+
     # KPIs for highly shareable metrics
     col_kpi1, col_kpi2, col_kpi3 = st.columns(3)
     with col_kpi1:
-        st.metric(label="Overall Life Satisfaction (CAGS)", value="7.97 / 10", delta="1.22 points higher than OECD")
+        st.metric(
+            label="Overall Life Satisfaction (CAGS)",
+            value="7.97 / 10",
+            delta="1.22 points higher than OECD",
+            help="Based on student self-reporting on a scale of 0 to 10. Higher scores indicate greater well-being."
+        )
     with col_kpi2:
-        st.metric(label="Exposure to Bullying (CAGS)", value="-0.41 Index", delta="Safer than the OECD (-0.30)", delta_color="inverse")
+        st.metric(
+            label="Exposure to Bullying (CAGS)",
+            value="-0.41 Index",
+            delta="Safer than the OECD (-0.30)",
+            delta_color="inverse",
+            help="A negative index value indicates less exposure to bullying. Lower values mean a safer environment."
+        )
     with col_kpi3:
-        st.metric(label="Math Performance (CAGS)", value="493 Points", delta="21 points higher than OECD")
+        st.metric(
+            label="Math Performance (CAGS)",
+            value="493 Points",
+            delta="21 points higher than OECD",
+            help="PISA mathematics score. The global OECD average is 472."
+        )
         
     st.markdown("---")
     
@@ -100,7 +118,14 @@ with tab_pr:
         ax_pr1.set_ylim(440, 520)
         ax_pr1.legend(loc='upper left')
         
+        # Aesthetic polish
+        ax_pr1.spines['top'].set_visible(False)
+        ax_pr1.spines['right'].set_visible(False)
+        ax_pr1.yaxis.grid(True, linestyle='--', alpha=0.7)
+        ax_pr1.set_axisbelow(True)
+
         st.pyplot(fig_pr1)
+        st.caption("PISA scores range up to ~600, where 20-30 points typically represents a full year of schooling.")
 
     # PR Chart 2: Student Well-being
     with c2:
@@ -124,13 +149,21 @@ with tab_pr:
         ax_pr2.set_xlim(-0.1, 0.7)
         ax_pr2.legend(loc='lower right')
         
+        # Aesthetic polish
+        ax_pr2.spines['top'].set_visible(False)
+        ax_pr2.spines['right'].set_visible(False)
+        ax_pr2.xaxis.grid(True, linestyle='--', alpha=0.7)
+        ax_pr2.set_axisbelow(True)
+
         st.pyplot(fig_pr2)
+        st.caption("Values greater than 0 indicate positive sentiment, while values below 0 indicate negative sentiment.")
 
 # ==========================================
 # TAB 2: BRANCH COGNITIVE BREAKDOWN
 # ==========================================
 with tab_cog:
     st.markdown("### Internal Branch Benchmarking")
+    st.info("💡 **Insight:** Ashok Nagar leads in Mathematics and Science, while Thakur Complex shows strong performance in Reading.")
     
     fig1, ax1 = plt.subplots(figsize=(12, 5))
     x = np.arange(len(branches))
@@ -144,11 +177,22 @@ with tab_cog:
     ax1.set_xticklabels(branches)
     ax1.set_ylim(400, 550) 
     ax1.legend(loc='upper right')
+
+    # Aesthetic polish
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    ax1.yaxis.grid(True, linestyle='--', alpha=0.7)
+    ax1.set_axisbelow(True)
+
     st.pyplot(fig1)
     
     st.markdown("---")
     st.markdown("#### Proficiency Distributions by Subject")
-    subject = st.selectbox("Select Subject to View Proficiency:", ['Reading', 'Mathematics', 'Science'])
+    subject = st.selectbox(
+        "Select Subject to View Proficiency:",
+        ['Reading', 'Mathematics', 'Science'],
+        help="Choose a subject to see the breakdown of student proficiency levels across branches."
+    )
     
     fig_prof, ax_prof = plt.subplots(figsize=(10, 4))
     low = np.array(prof_data[subject]['Low'])
@@ -161,6 +205,11 @@ with tab_cog:
     ax_prof.set_ylabel('Percentage of Students (%)')
     ax_prof.set_title(f'{subject} Proficiency Distribution', fontweight='bold')
     ax_prof.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3) 
+
+    # Aesthetic polish
+    ax_prof.spines['top'].set_visible(False)
+    ax_prof.spines['right'].set_visible(False)
+
     st.pyplot(fig_prof)
 
 # ==========================================
@@ -189,10 +238,16 @@ with tab_voice:
         add_to_radar(ax2, ashok_voice, 'Ashok Nagar', '#55A868')
         ax2.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
         st.pyplot(fig2)
+        st.caption("A broader radar footprint indicates more positive student feedback across well-being categories.")
 
     with c4:
         st.markdown("#### Gender Gaps")
-        subject_gap = st.selectbox("Select Subject:", ['Reading', 'Mathematics', 'Science'], key='gap')
+        subject_gap = st.selectbox(
+            "Select Subject for Gender Gap Analysis:",
+            ['Reading', 'Mathematics', 'Science'],
+            key='gap',
+            help="Select a subject to analyze performance differences between boys and girls at each branch."
+        )
         
         fig_gen, ax_gen = plt.subplots(figsize=(8, 6))
         girls = gender_data[subject_gap]['Girls']
@@ -215,4 +270,14 @@ with tab_voice:
         ax_gen.set_xlim(min_val, max_val)
         
         ax_gen.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=2)
+
+        # Aesthetic polish
+        ax_gen.spines['top'].set_visible(False)
+        ax_gen.spines['right'].set_visible(False)
+        ax_gen.spines['left'].set_visible(False)
+        ax_gen.xaxis.grid(True, linestyle='--', alpha=0.7)
+        ax_gen.set_axisbelow(True)
+        ax_gen.tick_params(axis='y', length=0)
+
         st.pyplot(fig_gen)
+        st.caption("Larger gaps indicate greater performance disparity between boys and girls. Hovering over is not required, gap is pre-calculated.")
