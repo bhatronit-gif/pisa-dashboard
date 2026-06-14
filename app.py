@@ -1,8 +1,7 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
-from math import pi
 
 # ==========================================
 # PAGE CONFIGURATION
@@ -127,7 +126,7 @@ elif page == "2. Individual School Reports":
     c1.metric("Students Tested", demo_data['Students'][idx])
     c2.metric("Boys", f"{demo_data['Boys (%)'][idx]}%")
     c3.metric("Girls", f"{demo_data['Girls (%)'][idx]}%")
-    c4.metric("Socio-Economic Index", demo_data['ESCS (Socio-Economic Index)'][idx])
+    c4.metric("Socio-Economic Index", demo_data['ESCS (Socio-Economic Index)'][idx], help="The PISA index of economic, social and cultural status (ESCS) is a summary measure of a student's family and home background. Higher means higher status.")
     
     st.markdown("---")
     
@@ -135,43 +134,40 @@ elif page == "2. Individual School Reports":
     with colA:
         # Cognitive Chart 
         st.markdown("#### Cognitive Performance")
-        fig_ind, ax_ind = plt.subplots(figsize=(8, 5))
-        x = np.arange(3)
-        width = 0.25
-        
+        subjects = ['Reading', 'Mathematics', 'Science']
         branch_scores = cog_data[selected_branch]
         oecd_scores = cog_data['OECD']
         
-        rects1 = ax_ind.bar(x - width/2, branch_scores, width, label=selected_branch, color='#1E40AF')
-        rects2 = ax_ind.bar(x + width/2, oecd_scores, width, label='OECD Avg', color='#9CA3AF')
-        
-        ax_ind.bar_label(rects1, padding=3, fontweight='bold', color='#1E40AF')
-        ax_ind.bar_label(rects2, padding=3, color='#4B5563')
-        
-        ax_ind.set_ylabel('PISA Score')
-        ax_ind.set_xticks(x)
-        ax_ind.set_xticklabels(['Reading', 'Mathematics', 'Science'])
-        ax_ind.set_ylim(400, 550)
-        ax_ind.legend()
-        st.pyplot(fig_ind)
+        fig_ind = go.Figure(data=[
+            go.Bar(name=selected_branch, x=subjects, y=branch_scores, marker_color='#1E40AF', text=branch_scores, textposition='outside'),
+            go.Bar(name='OECD Avg', x=subjects, y=oecd_scores, marker_color='#9CA3AF', text=oecd_scores, textposition='outside')
+        ])
+        fig_ind.update_layout(barmode='group', yaxis_title='PISA Score', yaxis_range=[400, 560], margin=dict(t=20, b=20, l=20, r=20), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        st.plotly_chart(fig_ind, use_container_width=True)
 
     with colB:
         # Voice Chart
         st.markdown("#### Student Voice & Culture (0 = OECD Avg)")
-        fig_r, ax_r = plt.subplots(figsize=(8, 5), subplot_kw=dict(polar=True))
-        N = len(voice_categories)
-        angles = [n / float(N) * 2 * pi for n in range(N)]
-        angles += angles[:1]
+        fig_r = go.Figure()
 
-        vals = voice_data[selected_branch] + voice_data[selected_branch][:1]
-        ax_r.plot(angles, vals, linewidth=2, linestyle='solid', color='#059669', label=selected_branch)
-        ax_r.fill(angles, vals, alpha=0.2, color='#059669')
+        vals = voice_data[selected_branch] + [voice_data[selected_branch][0]]
+        cats = voice_categories + [voice_categories[0]]
         
-        ax_r.set_xticks(angles[:-1])
-        ax_r.set_xticklabels(voice_categories, size=10)
-        ax_r.set_ylim(-0.2, 0.7)
-        ax_r.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
-        st.pyplot(fig_r)
+        fig_r.add_trace(go.Scatterpolar(
+            r=vals,
+            theta=cats,
+            fill='toself',
+            name=selected_branch,
+            line_color='#059669',
+            fillcolor='rgba(5, 150, 105, 0.2)'
+        ))
+
+        fig_r.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[-0.2, 0.7])),
+            showlegend=True,
+            margin=dict(t=20, b=20, l=20, r=20)
+        )
+        st.plotly_chart(fig_r, use_container_width=True)
 
 # ==========================================
 # PAGE 3: COMPARATIVE REPORTS
@@ -182,18 +178,15 @@ elif page == "3. Comparative School Reports":
     
     # Cognitive Performance
     st.subheader("1. Average Subject Performance by Branch")
-    fig_comp1, ax_comp1 = plt.subplots(figsize=(12, 4))
-    x = np.arange(3)
-    width = 0.25
-    ax_comp1.bar(x - width, [cog_data[b][0] for b in branches], width, label='Reading', color='#4C72B0')
-    ax_comp1.bar(x, [cog_data[b][1] for b in branches], width, label='Mathematics', color='#DD8452')
-    ax_comp1.bar(x + width, [cog_data[b][2] for b in branches], width, label='Science', color='#55A868')
-    ax_comp1.set_ylabel('PISA Score')
-    ax_comp1.set_xticks(x)
-    ax_comp1.set_xticklabels(branches, fontweight='bold')
-    ax_comp1.set_ylim(400, 550)
-    ax_comp1.legend(loc='upper right')
-    st.pyplot(fig_comp1)
+    subjects = ['Reading', 'Mathematics', 'Science']
+
+    fig_comp1 = go.Figure(data=[
+        go.Bar(name='Reading', x=branches, y=[cog_data[b][0] for b in branches], marker_color='#4C72B0'),
+        go.Bar(name='Mathematics', x=branches, y=[cog_data[b][1] for b in branches], marker_color='#DD8452'),
+        go.Bar(name='Science', x=branches, y=[cog_data[b][2] for b in branches], marker_color='#55A868')
+    ])
+    fig_comp1.update_layout(barmode='group', yaxis_title='PISA Score', yaxis_range=[400, 550], margin=dict(t=20, b=20, l=20, r=20), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    st.plotly_chart(fig_comp1, use_container_width=True)
     
     # Proficiency and Gender Gaps
     st.markdown("---")
@@ -202,58 +195,65 @@ elif page == "3. Comparative School Reports":
     
     colA, colB = st.columns(2)
     with colA:
-        fig_prof, ax_prof = plt.subplots(figsize=(7, 4.5))
-        low = np.array(prof_data[subject]['Low'])
-        med = np.array(prof_data[subject]['Med'])
-        high = np.array(prof_data[subject]['High'])
+        low = prof_data[subject]['Low']
+        med = prof_data[subject]['Med']
+        high = prof_data[subject]['High']
         
-        ax_prof.bar(branches, low, label='Below Level 2', color='#C44E52')
-        ax_prof.bar(branches, med, bottom=low, label='Levels 2-4', color='#EAEAF2')
-        ax_prof.bar(branches, high, bottom=low+med, label='Levels 5-6', color='#4C72B0')
-        ax_prof.set_title(f'{subject} Proficiency', fontweight='bold')
-        ax_prof.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), ncol=3)
-        st.pyplot(fig_prof)
+        fig_prof = go.Figure(data=[
+            go.Bar(name='Below Level 2', x=branches, y=low, marker_color='#C44E52'),
+            go.Bar(name='Levels 2-4', x=branches, y=med, marker_color='#EAEAF2'),
+            go.Bar(name='Levels 5-6', x=branches, y=high, marker_color='#4C72B0')
+        ])
+        fig_prof.update_layout(barmode='stack', title=f'{subject} Proficiency', margin=dict(t=40, b=20, l=20, r=20), legend=dict(orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5))
+        st.plotly_chart(fig_prof, use_container_width=True)
         
     with colB:
-        fig_gen, ax_gen = plt.subplots(figsize=(7, 4.5))
         girls = gender_data[subject]['Girls']
         boys = gender_data[subject]['Boys']
         
-        for i in range(3):
-            ax_gen.plot([girls[i], boys[i]], [i, i], color='grey', zorder=1)
-            ax_gen.scatter(girls[i], i, color='#C44E52', s=100, label='Girls' if i==0 else "", zorder=2)
-            ax_gen.scatter(boys[i], i, color='#4C72B0', s=100, label='Boys' if i==0 else "", zorder=2)
-            gap = abs(boys[i] - girls[i])
-            ax_gen.text((girls[i] + boys[i])/2, i+0.25, f"Gap: {gap}", ha='center', fontsize=10)
+        fig_gen = go.Figure()
+
+        for i, branch in enumerate(branches):
+            fig_gen.add_trace(go.Scatter(x=[girls[i], boys[i]], y=[branch, branch], mode='lines', line=dict(color='grey'), showlegend=False))
             
-        ax_gen.set_yticks(range(3))
-        ax_gen.set_yticklabels(branches)
-        ax_gen.set_title(f'Gender Gap in {subject}', fontweight='bold')
-        ax_gen.set_xlim(min(min(girls), min(boys)) - 10, max(max(girls), max(boys)) + 15)
-        ax_gen.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), ncol=2)
-        st.pyplot(fig_gen)
+            # Text annotation for gap
+            gap = abs(boys[i] - girls[i])
+            fig_gen.add_annotation(x=(girls[i] + boys[i])/2, y=branch, text=f"Gap: {gap}", showarrow=False, yshift=15)
+
+        fig_gen.add_trace(go.Scatter(x=girls, y=branches, mode='markers', name='Girls', marker=dict(color='#C44E52', size=15)))
+        fig_gen.add_trace(go.Scatter(x=boys, y=branches, mode='markers', name='Boys', marker=dict(color='#4C72B0', size=15)))
+
+        fig_gen.update_layout(title=f'Gender Gap in {subject}', xaxis_title="Score", yaxis_autorange="reversed", margin=dict(t=40, b=20, l=20, r=20), legend=dict(orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5))
+        st.plotly_chart(fig_gen, use_container_width=True)
         
     # Radar Chart
     st.markdown("---")
     st.subheader("3. Student Voice & Culture Comparison")
-    fig_radar, ax_radar = plt.subplots(figsize=(8, 6), subplot_kw=dict(polar=True))
-    N = len(voice_categories)
-    angles = [n / float(N) * 2 * pi for n in range(N)]
-    angles += angles[:1]
 
-    def add_to_radar(ax, values, label, color):
-        vals = values + values[:1]
-        ax.plot(angles, vals, linewidth=2, linestyle='solid', label=label, color=color)
-        ax.fill(angles, vals, alpha=0.1, color=color)
+    fig_radar = go.Figure()
+    cats = voice_categories + [voice_categories[0]]
 
-    ax_radar.set_xticks(angles[:-1])
-    ax_radar.set_xticklabels(voice_categories, size=10)
-    ax_radar.set_ylim(-0.2, 0.7)
-    add_to_radar(ax_radar, voice_data['Thakur Complex'], 'Thakur Complex', '#4C72B0')
-    add_to_radar(ax_radar, voice_data['Malad'], 'Malad', '#C44E52')
-    add_to_radar(ax_radar, voice_data['Ashok Nagar'], 'Ashok Nagar', '#55A868')
-    ax_radar.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
-    st.pyplot(fig_radar)
+    def add_to_radar(fig, values, label, color):
+        vals = values + [values[0]]
+        fig.add_trace(go.Scatterpolar(
+            r=vals,
+            theta=cats,
+            fill='toself',
+            name=label,
+            line_color=color,
+            fillcolor=f'rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.1)'
+        ))
+
+    add_to_radar(fig_radar, voice_data['Thakur Complex'], 'Thakur Complex', '#4C72B0')
+    add_to_radar(fig_radar, voice_data['Malad'], 'Malad', '#C44E52')
+    add_to_radar(fig_radar, voice_data['Ashok Nagar'], 'Ashok Nagar', '#55A868')
+
+    fig_radar.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[-0.2, 0.7])),
+        showlegend=True,
+        margin=dict(t=20, b=20, l=20, r=20)
+    )
+    st.plotly_chart(fig_radar, use_container_width=True)
 
 
 # ==========================================
@@ -274,8 +274,8 @@ elif page == "4. Combined CAGS vs OECD (PR)":
     # KPIs
     st.markdown("<br>", unsafe_allow_html=True)
     col_kpi1, col_kpi2, col_kpi3 = st.columns(3)
-    col_kpi1.metric(label="Overall Life Satisfaction (CAGS)", value="7.97 / 10", delta="1.22 points higher than OECD")
-    col_kpi2.metric(label="Exposure to Bullying (CAGS)", value="-0.41 Index", delta="Safer than the OECD (-0.30)", delta_color="inverse")
+    col_kpi1.metric(label="Overall Life Satisfaction (CAGS)", value="7.97 / 10", delta="1.22 points higher than OECD", help="Self-reported satisfaction with life on a scale of 0 to 10.")
+    col_kpi2.metric(label="Exposure to Bullying (CAGS)", value="-0.41 Index", delta="Safer than the OECD (-0.30)", delta_color="inverse", help="Negative scores indicate LESS exposure to bullying, meaning a safer environment.")
     col_kpi3.metric(label="Math Performance (CAGS)", value="493 Points", delta="21 points higher than OECD")
     st.markdown("<br><hr>", unsafe_allow_html=True)
     
@@ -283,40 +283,18 @@ elif page == "4. Combined CAGS vs OECD (PR)":
     c1, c2 = st.columns(2)
     
     with c1:
-        fig_pr1, ax_pr1 = plt.subplots(figsize=(8, 6))
-        x = np.arange(3)
-        width = 0.35
-        
-        rects1 = ax_pr1.bar(x - width/2, cags_cog, width, label='CAGS Network', color='#1E40AF')
-        rects2 = ax_pr1.bar(x + width/2, oecd_cog, width, label='OECD Average', color='#9CA3AF')
-        
-        ax_pr1.bar_label(rects1, padding=3, fontweight='bold', color='#1E40AF')
-        ax_pr1.bar_label(rects2, padding=3, color='#4B5563')
-        
-        ax_pr1.set_ylabel('PISA Score')
-        ax_pr1.set_title('Cognitive Performance: CAGS vs Global Average', fontweight='bold')
-        ax_pr1.set_xticks(x)
-        ax_pr1.set_xticklabels(['Reading', 'Mathematics', 'Science'], fontsize=11, fontweight='bold')
-        ax_pr1.set_ylim(440, 520)
-        ax_pr1.legend(loc='upper left')
-        st.pyplot(fig_pr1)
+        subjects = ['Reading', 'Mathematics', 'Science']
+        fig_pr1 = go.Figure(data=[
+            go.Bar(name='CAGS Network', x=subjects, y=cags_cog, marker_color='#1E40AF', text=cags_cog, textposition='outside'),
+            go.Bar(name='OECD Average', x=subjects, y=oecd_cog, marker_color='#9CA3AF', text=oecd_cog, textposition='outside')
+        ])
+        fig_pr1.update_layout(barmode='group', title='Cognitive Performance: CAGS vs Global Average', yaxis_title='PISA Score', yaxis_range=[440, 520], margin=dict(t=40, b=20, l=20, r=20), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        st.plotly_chart(fig_pr1, use_container_width=True)
 
     with c2:
-        fig_pr2, ax_pr2 = plt.subplots(figsize=(8, 6))
-        y = np.arange(len(voice_labels_pr))
-        width = 0.35
-        
-        rects3 = ax_pr2.barh(y + width/2, cags_voice_pr, width, label='CAGS Network', color='#059669') 
-        rects4 = ax_pr2.barh(y - width/2, oecd_voice_pr, width, label='OECD Average', color='#9CA3AF') 
-        
-        ax_pr2.set_xlabel('PISA Index Score (Higher is Better)')
-        ax_pr2.set_title('Student Well-Being: CAGS vs Global Average', fontweight='bold')
-        ax_pr2.set_yticks(y)
-        ax_pr2.set_yticklabels(voice_labels_pr, fontsize=11, fontweight='bold')
-        
-        ax_pr2.bar_label(rects3, padding=5, fontweight='bold', color='#059669', fmt='%.2f')
-        ax_pr2.bar_label(rects4, padding=5, color='#4B5563', fmt='%.2f')
-        
-        ax_pr2.set_xlim(-0.1, 0.7)
-        ax_pr2.legend(loc='lower right')
-        st.pyplot(fig_pr2)
+        fig_pr2 = go.Figure(data=[
+            go.Bar(name='CAGS Network', y=voice_labels_pr, x=cags_voice_pr, orientation='h', marker_color='#059669', text=[f"{val:.2f}" for val in cags_voice_pr], textposition='outside'),
+            go.Bar(name='OECD Average', y=voice_labels_pr, x=oecd_voice_pr, orientation='h', marker_color='#9CA3AF', text=[f"{val:.2f}" for val in oecd_voice_pr], textposition='outside')
+        ])
+        fig_pr2.update_layout(barmode='group', title='Student Well-Being: CAGS vs Global Average', xaxis_title='PISA Index Score (Higher is Better)', xaxis_range=[-0.1, 0.7], margin=dict(t=40, b=20, l=20, r=20), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        st.plotly_chart(fig_pr2, use_container_width=True)
