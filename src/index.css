@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased font-sans;
+  }
+}
+
+html.light .recharts-cartesian-grid-horizontal line,
+html.light .recharts-cartesian-grid-vertical line {
+  stroke: #E2E8F0 !important;
+}
+html.light .recharts-cartesian-axis-line,
+html.light .recharts-cartesian-axis-tick line {
+  stroke: #475569 !important;
+}
+html.light .recharts-cartesian-axis-tick text {
+  fill: #475569 !important;
+}
+html.light .recharts-legend-item-text {
+  color: #475569 !important;
+}
+
