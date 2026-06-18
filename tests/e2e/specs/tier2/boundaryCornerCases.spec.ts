@@ -239,6 +239,7 @@ test.describe('Tier 2: Boundary & Corner Cases', () => {
     test('T1.2.3.3: Tooltip Screen Edge Clipping', async ({ page }) => {
       await page.locator('[data-testid="tab-comparative"]').click();
       await page.setViewportSize({ width: 375, height: 812 });
+      await page.waitForTimeout(300); // Wait for ResponsiveContainer to settle after resize
       
       const chart = page.locator('[data-testid="comparative-scores-chart"]');
       const bar = chart.locator('.recharts-bar-rectangle').last();

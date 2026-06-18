@@ -29,6 +29,15 @@ export interface BranchData {
     teacherRelation: number;
     growthMindset: number;
   };
+  averageAge?: number;
+  advancedVoice?: {
+    safetyAtSchool: number;
+    bullying: number;
+    familySupport: number;
+    homeworkTime: number;
+    digitalTime: number;
+    lifeSatisfaction: number;
+  };
 }
 
 export const BRANCHES_DATA: BranchData[] = [
@@ -55,6 +64,15 @@ export const BRANCHES_DATA: BranchData[] = [
       feelingSafe: 0.49,
       teacherRelation: 0.28,
       growthMindset: 0.37
+    },
+    averageAge: 15.43,
+    advancedVoice: {
+      safetyAtSchool: 0.25,
+      bullying: -0.20,
+      familySupport: 0.45,
+      homeworkTime: 1.80,
+      digitalTime: 2.80,
+      lifeSatisfaction: 7.80
     }
   },
   {
@@ -80,6 +98,15 @@ export const BRANCHES_DATA: BranchData[] = [
       feelingSafe: 0.36,
       teacherRelation: 0.12,
       growthMindset: 0.14
+    },
+    averageAge: 15.43,
+    advancedVoice: {
+      safetyAtSchool: -0.10,
+      bullying: -0.10,
+      familySupport: 0.35,
+      homeworkTime: 2.00,
+      digitalTime: 2.60,
+      lifeSatisfaction: 7.50
     }
   },
   {
@@ -105,6 +132,15 @@ export const BRANCHES_DATA: BranchData[] = [
       feelingSafe: 0.64,
       teacherRelation: 0.51,
       growthMindset: 0.42
+    },
+    averageAge: 15.44,
+    advancedVoice: {
+      safetyAtSchool: -1.40,
+      bullying: -0.80,
+      familySupport: 0.75,
+      homeworkTime: 2.10,
+      digitalTime: 2.50,
+      lifeSatisfaction: 8.10
     }
   }
 ];
@@ -112,9 +148,19 @@ export const BRANCHES_DATA: BranchData[] = [
 export interface ReferenceData {
   singapore: {
     cognitiveScores: { reading: number; math: number; science: number };
+    averageAge?: number;
+    advancedVoice?: {
+      safetyAtSchool: number;
+      bullying: number;
+      familySupport: number;
+      homeworkTime: number;
+      digitalTime: number;
+      lifeSatisfaction: number;
+    };
   };
   oecd: {
     cognitiveScores: { reading: number; math: number; science: number };
+    averageAge?: number;
     studentVoice: {
       belonging: number;
       disciplinaryClimate: number;
@@ -122,21 +168,47 @@ export interface ReferenceData {
       teacherRelation: number;
       growthMindset: number;
     };
+    advancedVoice?: {
+      safetyAtSchool: number;
+      bullying: number;
+      familySupport: number;
+      homeworkTime: number;
+      digitalTime: number;
+      lifeSatisfaction: number;
+    };
   };
 }
 
 export const REFERENCE_DATA: ReferenceData = {
   singapore: {
-    cognitiveScores: { reading: 543, math: 575, science: 561 }
+    cognitiveScores: { reading: 543, math: 575, science: 561 },
+    averageAge: 15.78,
+    advancedVoice: {
+      safetyAtSchool: 0.10,
+      bullying: 0.00,
+      familySupport: 0.00,
+      homeworkTime: 2.30,
+      digitalTime: 3.10,
+      lifeSatisfaction: 6.80
+    }
   },
   oecd: {
     cognitiveScores: { reading: 476, math: 472, science: 485 },
+    averageAge: 15.78,
     studentVoice: {
       belonging: -0.02,
       disciplinaryClimate: 0.02,
       feelingSafe: 0.00,
       teacherRelation: 0.00,
       growthMindset: 0.02
+    },
+    advancedVoice: {
+      safetyAtSchool: 0.00,
+      bullying: 0.00,
+      familySupport: 0.00,
+      homeworkTime: 1.70,
+      digitalTime: 3.00,
+      lifeSatisfaction: 6.60
     }
   }
 };
